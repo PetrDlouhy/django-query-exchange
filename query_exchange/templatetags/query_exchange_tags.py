@@ -29,8 +29,8 @@ class BaseQueryNode(object):
             params,
             self.keep and [v.resolve(context) for v in self.keep],
             self.exclude and [v.resolve(context) for v in self.exclude],
-            self.add and dict([(k, v.resolve(context)) for k, v in self.add.iteritems()]),
-            self.remove and dict([(k, v.resolve(context)) for k, v in self.remove.iteritems()]),
+            self.add and dict([(k, v.resolve(context)) for k, v in self.add.items()]),
+            self.remove and dict([(k, v.resolve(context)) for k, v in self.remove.items()]),
         )
         if query:
             url += '?' + query
@@ -54,11 +54,6 @@ class URLWithQueryNode(BaseQueryNode, URLNode):
         self.remove = remove
 
     def get_url(self, context):
-        try:
-            self.view_name = self.view_name.resolve(context)
-        except AttributeError:
-            pass
-
         return URLNode.render(self, context), context['request'].GET.copy()
 
 class WithQueryNode(BaseQueryNode, template.Node):
@@ -146,16 +141,16 @@ def url_with_query(parser, token):
         bits = iter(bits[2:])
         for bit in bits:
             if bit == 'as':
-                asvar = bits.next()
+                asvar = next(bits)
                 break
             elif bit == 'keep':
-                keep, _ = parse_args(parser, bits.next())
+                keep, _ = parse_args(parser, next(bits))
             elif bit == 'exclude':
-                exclude, _ = parse_args(parser, bits.next())
+                exclude, _ = parse_args(parser, next(bits))
             elif bit == 'add':
-                _, add = parse_args(parser, bits.next())
+                _, add = parse_args(parser, next(bits))
             elif bit == 'remove':
-                _, remove = parse_args(parser, bits.next())
+                _, remove = parse_args(parser, next(bits))
             else:
                 args, kwargs = parse_args(parser, bit)
 

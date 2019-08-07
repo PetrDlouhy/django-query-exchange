@@ -1,6 +1,7 @@
 from django.utils.http import urlencode
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils.itercompat import is_iterable
+from six import string_types
 
 
 def reverse_with_query(viewname, urlconf=None, args=None, kwargs=None, prefix=None, current_app=None,
@@ -28,7 +29,7 @@ def process_query(params, keep=None, exclude=None, add=None, remove=None):
     if add:
         add = dict(_extract_items(add))
 
-        for k, v in add.iteritems():
+        for k, v in add.items():
             if k in data and keep and k in keep:
                 data[k].extend(v)
             else:
@@ -36,18 +37,18 @@ def process_query(params, keep=None, exclude=None, add=None, remove=None):
 
     if remove:
         remove = dict(_extract_items(remove))
-        for k, v in remove.iteritems():
+        for k, v in remove.items():
             if k in data:
                 for value in v:
                     if value in data[k]:
                         data[k].remove(value)
 
 
-    return urlencode([(k, v) for k, l in sorted(data.iteritems()) for v in l])
+    return urlencode([(k, v) for k, l in sorted(data.items()) for v in l])
 
 
 def _is_iterable(iterable):
-    return not isinstance(iterable, basestring) and is_iterable(iterable)
+    return not isinstance(iterable, string_types) and is_iterable(iterable)
 
 
 def _extract_items(iterable):
@@ -55,6 +56,6 @@ def _extract_items(iterable):
         return ((k, v[:]) for k, v in iterable.iterlists())
 
     return ((k, _is_iterable(v) and list(v) or [v])
-                for k, v in (iterable.iteritems()
-                             if hasattr(iterable, 'iteritems')
+                for k, v in (iterable.items()
+                             if hasattr(iterable, 'items')
                              else iterable))
